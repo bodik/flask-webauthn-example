@@ -5,6 +5,7 @@ flask_login
 flask_sqlalchemy
 flask_wtf
 lxml
+requests
 psycopg2
 pylint
 pytest<4.0

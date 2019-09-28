@@ -15,7 +15,7 @@ from tests import persist_and_detach
 def app():
     """yield application as pytest fixture"""
 
-    _app = create_app('postgresql:///fwe_test')
+    _app = create_app('postgresql:///fwe_test', '/tmp/fwt_test_sessions')
     with _app.test_request_context():
         db_remove()
         db.create_all()

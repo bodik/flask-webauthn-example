@@ -2,7 +2,7 @@
 
 from http import HTTPStatus
 
-from flask import Blueprint, flash, redirect, render_template, url_for
+from flask import _request_ctx_stack, Blueprint, current_app, flash, g, redirect, render_template, session, url_for
 from flask_login import login_required, login_user, logout_user
 
 from fwe import db, login_manager
@@ -14,6 +14,14 @@ blueprint = Blueprint('app', __name__)  # pylint: disable=invalid-name
 
 
 # authentication
+
+def regenerate_session():
+    """regenerate session"""
+
+    _request_ctx_stack.top.session = current_app.session_interface.new_session()
+    if hasattr(g, 'csrf_token'):  # cleanup g, which is used by flask_wtf
+        delattr(g, 'csrf_token')
+
 
 @login_manager.user_loader
 def user_loader(user_id):
@@ -31,7 +39,7 @@ def login_route():
         if user:
             if form.password.data:
                 if PWS.compare(PWS.hash(form.password.data, PWS.get_salt(user.password)), user.password):
-                    # TODO: regenerate session
+                    regenerate_session()
                     login_user(user)
                     return redirect(url_for('app.index_route'))
 
@@ -46,7 +54,7 @@ def logout_route():
     """logout route"""
 
     logout_user()
-    # TODO: regenerate session
+    session.clear()
     return redirect(url_for('app.index_route'))
 
 

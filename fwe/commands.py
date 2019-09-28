@@ -1,6 +1,9 @@
 """fwe commands"""
 
+import shutil
+
 import click
+from flask import current_app
 from flask.cli import with_appcontext
 
 from fwe import db
@@ -12,6 +15,7 @@ def db_remove():
 
     db.session.close()
     db.drop_all()
+    shutil.rmtree(current_app.session_interface.storage, ignore_errors=True)
 
 
 @click.command(name='dbinit')

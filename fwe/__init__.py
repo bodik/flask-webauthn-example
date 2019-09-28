@@ -7,18 +7,23 @@ from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import generate_csrf
 
+from fwe.sessions import FilesystemSessionInterface
+
 
 db = SQLAlchemy()  # pylint: disable=invalid-name
 login_manager = LoginManager()  # pylint: disable=invalid-name
 
 
-def create_app(dbconnection='postgresql:///fwe'):
+def create_app(db_connection='postgresql:///fwe', session_storage='/tmp/fwe_sessions'):
     """application factory"""
 
     app = Flask(__name__)
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or os.urandom(32)
-    app.config['SQLALCHEMY_DATABASE_URI'] = dbconnection
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_connection
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+    # mind the session storage protection and snooping!
+    app.session_interface = FilesystemSessionInterface(session_storage, 3600)
 
     db.init_app(app)
     login_manager.init_app(app)
