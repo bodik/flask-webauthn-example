@@ -9,4 +9,7 @@ requests
 psycopg2
 pylint
 pytest<4.0
+pytest-html<2.0
+pytest-flask
+pytest-selenium
 webtest

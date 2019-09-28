@@ -1,26 +1,13 @@
-"""fwe pytest setup and fixtures"""
+"""fwe app pytest setup and fixtures"""
 
 import pytest
 from flask import url_for
 from webtest import TestApp
 
-from fwe import create_app, db
-from fwe.commands import db_remove
+from fwe import db
 from fwe.models import User
 from fwe.password_supervisor import PasswordSupervisor as PWS
 from tests.app import persist_and_detach
-
-
-@pytest.fixture
-def app():
-    """yield application as pytest fixture"""
-
-    _app = create_app('postgresql:///fwe_test', '/tmp/fwt_test_sessions')
-    with _app.test_request_context():
-        db_remove()
-        db.create_all()
-        yield _app
-        db_remove()
 
 
 @pytest.fixture

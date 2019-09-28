@@ -11,7 +11,8 @@ addons:
 install:
     - sudo apt-get update
     - make install-deps
+    - make install-extra
     - make db-create-test
 
 script:
-    - make
+    - make && make test-extra
