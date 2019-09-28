@@ -21,34 +21,8 @@
 
 		/* other */
 		span.glyphicon { vertical-align: middle; }
-		.text-alert { color: red; }
 		.text-warning { color: orange; }
 	</style>
-
-	<script type="text/javascript">
-		/**
-		 * submit form, appends csrf to form from meta tag
-		 * @param {string} url - action url
-		 * @param {object} data - data to submit
-		 */
-		function submit_form(url, data={}) {
-			data['csrf_token'] = $('meta[name="csrf-token"]').attr('content');
-			return $.ajax({"url": url,"type": "POST", "data": data})
-				.fail(function(xhr, status, exception) { toastr.error(xhr.hasOwnProperty('responseJSON') ? xhr.responseJSON["title"] : 'Request failed'); });
-		}
-
-		/**
-		 * action submit by url with optional confirmation dialog
-		 * @param {object} event - event with data {'dt': datatable instance, 'confirmation': string}
-		 */
-		function action_submit_by_url(event) {
-			if (event.data.hasOwnProperty('confirmation')) {
-				if (!confirm(event.data.confirmation)) { return; }
-			}
-			submit_form(event.target.closest('a').getAttribute('data-url'))
-				.always(function() { event.data.dt.ajax.reload(); });
-		}
-	</script>
 
 	{% block style %}{% endblock %}
 	{% block script %}{% endblock %}
