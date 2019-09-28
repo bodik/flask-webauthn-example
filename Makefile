@@ -40,15 +40,3 @@ test:
 coverage:
 	coverage run --source fwe -m pytest tests -x -vv
 	coverage report --show-missing --fail-under 100
-
-
-#install-extra: /usr/local/bin/geckodriver
-#	which firefox || sudo apt-get -y install firefox-esr
-#
-#/usr/local/bin/geckodriver:
-#	rm -f /tmp/geckodriver.tar.gz
-#	wget --no-verbose -O /tmp/geckodriver.tar.gz https://github.com/mozilla/geckodriver/releases/download/v0.24.0/geckodriver-v0.24.0-linux64.tar.gz
-#	sudo tar xzf /tmp/geckodriver.tar.gz -C /usr/local/bin geckodriver
-#
-#test-extra:
-#	python -m pytest -x -vv tests/selenium
