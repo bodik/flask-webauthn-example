@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div>
+	<div style="font-size: x-large;">
+	{% if current_user.is_authenticated %}
+		Authenticated as {{ current_user.username }}
+	{% else %}
+		Not logged in
+	{% endif %}
+	</div>
+</div>
+{% endblock %}

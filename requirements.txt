@@ -1,0 +1,7 @@
+flake8
+flask
+flask_login
+flask_sqlalchemy
+flask_wtf
+psycopg2
+pylint

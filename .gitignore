@@ -1,0 +1,5 @@
+.coverage
+.env
+venv/
+build/
+__pycache__

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="csrf-token" content="{{ csrf_token() }}">
+	<title>fwe - Flask Webauthn Example</title>
+
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css"/>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css"/>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+
+	<style>
+		/* required items on forms */
+		div.form-group.required label.control-label:after { content:"*"; color:red; }
+
+		/* other */
+		span.glyphicon { vertical-align: middle; }
+		.text-alert { color: red; }
+		.text-warning { color: orange; }
+	</style>
+
+	<script type="text/javascript">
+		/**
+		 * submit form, appends csrf to form from meta tag
+		 * @param {string} url - action url
+		 * @param {object} data - data to submit
+		 */
+		function submit_form(url, data={}) {
+			data['csrf_token'] = $('meta[name="csrf-token"]').attr('content');
+			return $.ajax({"url": url,"type": "POST", "data": data})
+				.fail(function(xhr, status, exception) { toastr.error(xhr.hasOwnProperty('responseJSON') ? xhr.responseJSON["title"] : 'Request failed'); });
+		}
+
+		/**
+		 * action submit by url with optional confirmation dialog
+		 * @param {object} event - event with data {'dt': datatable instance, 'confirmation': string}
+		 */
+		function action_submit_by_url(event) {
+			if (event.data.hasOwnProperty('confirmation')) {
+				if (!confirm(event.data.confirmation)) { return; }
+			}
+			submit_form(event.target.closest('a').getAttribute('data-url'))
+				.always(function() { event.data.dt.ajax.reload(); });
+		}
+
+		/**
+		 * js ui helper
+		 */
+		var current_user_is_authenticated = {{ current_user.is_authenticated|string|lower }};
+	</script>
+
+	{% block style %}{% endblock %}
+	{% block script %}{% endblock %}
+</head>
+<body>
+	<nav class="navbar navbar-default">
+	<div class="container-fluid">
+        	<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" href="{{ url_for('app.index_route') }}">flask-webauthn-example</a>
+		</div>
+		<div id="navbar" class="collapse navbar-collapse">
+			<ul class="nav navbar-nav">
+			{% if config['DEBUG'] %}
+				<li><a title="debug is on"><span class="text-warning glyphicon glyphicon-warning-sign"></span></a></li>
+			{% endif %}
+
+			<ul class="nav navbar-nav navbar-right">
+				<li><a href="{{ url_for('app.user_list_route') }}">Users</a></li>
+				<li><a href="{{ url_for('app.user_add_route') }}">Add user</a></li>
+			{% if current_user.is_authenticated %}
+				<li><a href="{{ url_for('app.logout_route') }}">Logout</a></li>
+			{% else %}
+				<li><a href="{{ url_for('app.login_route') }}">Login</a></li>
+			{% endif %}
+			</ul>
+		</div><!--/.nav-collapse -->
+	</div>
+	</nav>
+
+	<div class="container-fluid">
+		{% block content %}
+		{% endblock %}
+	</div>
+
+	<script type="text/javascript">
+		toastr.options = {
+			"positionClass": "toast-top-right",
+		};
+		{% for category, message in get_flashed_messages(with_categories=true) %}
+		toastr['{{ category }}']('{{ message }}');
+		{% endfor %}
+	</script>
+</body>
+</html>

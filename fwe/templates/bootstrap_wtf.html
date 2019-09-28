@@ -1,0 +1,112 @@
+{#- This file is part of sner4 project governed by MIT license, see the LICENSE.txt file. -#}
+{#- https://github.com/carlnewton/bootstrap-wtf/ -#}
+
+{% set text_field_types = 'DateField', 'DateTimeField', 'DecimalField', 'FloatField', 'IntegerField', 'LinesField', 'PasswordField', 'SelectField', 'SelectMultipleField', 'StringField', 'TextAreaField', 'TextField' %}
+{% set other_field_types = 'BooleanField', 'FileField', 'RadioField', 'SubmitField' %}
+
+{% macro bootstrap_form(form, form_groups=True, placeholders=True, labels=True, errors=True, horizontal=False) -%}
+    {% for field in form -%}
+        {% if field.type in (text_field_types + other_field_types) -%}
+            {{ bootstrap_field(field, form_groups, placeholders, labels, errors, horizontal) }}
+        {%- else -%}
+            {{ field }}
+        {%- endif %}
+    {%- endfor %}
+{%- endmacro %}
+
+{% macro bootstrap_field(field, form_group=True, placeholder=True, label=True, errors=True, horizontal=False) %}
+
+    {% set class_value = False %}
+    {%- if field.type in text_field_types -%}
+        {% set class_value = 'form-control' %}
+    {%- elif field.type == 'SubmitField' -%}
+        {% set class_value = 'btn btn-default' %}
+    {%- endif -%}
+
+    {% set placeholder_value = False %}
+    {%- if placeholder and field.type in text_field_types -%}
+        {% set placeholder_value = field.label.text %}
+    {%- endif -%}
+
+    {%- if label -%}
+        {% if horizontal -%}
+            {% set field_label = field.label(class_='col-sm-2 control-label') %}
+        {%- else -%}
+            {% set field_label = field.label(class_='control-label') %}
+        {%- endif %}
+    {%- endif -%}
+
+    {% set field_output = field(class_=class_value, placeholder=placeholder_value, id=False) %}
+
+    {%- if horizontal %}
+        {%- if field.errors -%}
+             {% set field_output = field_output + '<span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span><span class="sr-only">(error)</span>' %}
+        {%- endif %}
+
+        {%- if field.type not in ['SubmitField', 'BooleanField'] -%}
+            {% set field_output = '<div class="col-sm-10">%s</div>' % field_output %}
+        {%- endif %}
+    {%- endif -%}
+
+    {%- if field.type == 'BooleanField' -%}
+        {% set field_output = '<div class="checkbox"><label>%s %s</label></div>' % (field_output, field.label.text) %}
+    {%- elif field.type != 'SubmitField' and label -%}
+        {% set field_output = field_label + field_output %}
+    {%- endif -%}
+
+    {% if horizontal -%}
+        {% if field.type in ['SubmitField', 'BooleanField'] -%}
+            {% set field_output = '<div class="col-sm-offset-2 col-sm-10">%s</div>' % field_output %}
+        {%- endif %}
+    {%- endif -%}
+
+    {% set form_group_classes = 'form-group' %}
+    {%- if field.errors -%}
+        {% set form_group_classes = form_group_classes + ' has-error has-feedback' %}
+        {%- if form_group and not horizontal -%}
+            {% set field_output = field_output + '<span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span><span class="sr-only">(error)</span>' %}
+        {%- endif -%}
+    {%- endif -%}
+
+    {%- if field.flags.required -%}
+        {% set form_group_classes = form_group_classes + ' required' %}
+    {%- endif -%}
+
+    {%- if form_group -%}
+        {% set field_output = '<div class="%s">%s</div>' % (form_group_classes, field_output) %}
+    {%- endif -%}
+
+    {%- if field.type == 'HiddenField' -%}
+        {{ field }}
+    {%- else -%}
+        {{ field_output|safe }}
+
+        {%- if field.description -%}
+            {% if horizontal -%}
+                <div class="col-sm-10 col-sm-offset-2">
+            {%- endif -%}
+            <p class="help-block">{{ field.description }}</p>
+            {%- if horizontal -%}
+                </div>
+            {%- endif -%}
+        {%- endif %}
+
+        {%- if field.errors and errors -%}
+            {% if horizontal -%}
+                <div class="col-sm-10 col-sm-offset-2">
+            {% endif %}
+            {%- if field.errors|count == 1 -%}
+                <p class="text-danger">{{ field.errors[0] }}</p>
+            {%- else -%}
+                <ul>
+                {%- for error in field.errors -%}
+                    <li class="text-danger">{{ error }}</li>
+                {%- endfor -%}
+                </ul>
+            {%- endif %}
+            {%- if horizontal -%}
+                </div>
+            {%- endif %}
+        {%- endif -%}
+    {%- endif -%}
+{%- endmacro %}

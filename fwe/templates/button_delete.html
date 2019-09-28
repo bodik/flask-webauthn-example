@@ -1,0 +1,5 @@
+{% import "bootstrap_wtf.html" as b_wtf %}
+<form class="form-horizontal" style="display: inline;"{% if form_url %} action="{{ form_url }}"{% endif %} method="post">
+	{{ b_wtf.bootstrap_form(form) }}
+	<button class="btn btn-xs btn-default" type="submit" onClick="return confirm('Really delete?')">Delete</button>
+</form>
