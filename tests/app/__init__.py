@@ -1,4 +1,4 @@
-"""app tests functions"""
+"""app tests module (and shared functions)"""
 
 from flask import url_for
 

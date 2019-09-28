@@ -1,4 +1,4 @@
-"""fwe selenium tests"""
+"""fwe selenium pytest setup and fixtures"""
 
 import pytest
 

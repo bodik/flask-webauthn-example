@@ -1,4 +1,4 @@
-"""test authentication routes"""
+"""fwe authentication routes tests"""
 
 from http import HTTPStatus
 

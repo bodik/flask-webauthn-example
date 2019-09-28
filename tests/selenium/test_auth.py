@@ -1,6 +1,4 @@
-"""
-fwe selenium authentication tests
-"""
+"""fwe selenium authentication tests"""
 
 from flask import url_for
 from selenium.webdriver.common.by import By

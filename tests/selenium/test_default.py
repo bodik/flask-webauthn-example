@@ -1,6 +1,4 @@
-"""
-selenium based UI tests
-"""
+"""fwe selenium basic tests"""
 
 from flask import url_for
 

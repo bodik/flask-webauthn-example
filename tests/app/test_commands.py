@@ -1,4 +1,4 @@
-"""command tests"""
+"""fwe command tests"""
 
 from fwe import db, commands
 

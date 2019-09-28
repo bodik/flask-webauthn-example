@@ -1,4 +1,4 @@
-"""shared tests functions"""
+"""tests shared functions"""
 
 from fwe import db
 
