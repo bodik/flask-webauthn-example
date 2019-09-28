@@ -5,7 +5,7 @@ from http import HTTPStatus
 from flask import url_for
 
 from fwe.models import User
-from tests import get_csrf_token
+from tests.app import get_csrf_token
 
 
 def test_index_route(client):

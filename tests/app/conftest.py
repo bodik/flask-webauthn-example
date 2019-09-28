@@ -8,7 +8,7 @@ from fwe import create_app, db
 from fwe.commands import db_remove
 from fwe.models import User
 from fwe.password_supervisor import PasswordSupervisor as PWS
-from tests import persist_and_detach
+from tests.app import persist_and_detach
 
 
 @pytest.fixture

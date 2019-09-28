@@ -35,7 +35,7 @@ pylint:
 	python -m pylint fwe tests
 
 test:
-	python -m pytest -v tests
+	python -m pytest -v tests/app
 
 coverage:
 	coverage run --source fwe -m pytest tests -x -vv
