@@ -7,7 +7,6 @@ from webtest import TestApp
 from fwe import db
 from fwe.models import User
 from fwe.password_supervisor import PasswordSupervisor as PWS
-from tests.app import persist_and_detach
 
 
 @pytest.fixture
@@ -36,9 +35,3 @@ def cl_user(client):  # pylint: disable=redefined-outer-name
     form['password'] = tmp_password
     form.submit()
     return client
-
-
-@pytest.fixture
-def test_user(app):  # pylint: disable=unused-argument,redefined-outer-name
-    """persistent test user"""
-    return persist_and_detach(User(username='user1', password=PWS().generate()))
