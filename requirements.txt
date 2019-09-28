@@ -1,7 +1,11 @@
+coverage
 flake8
 flask
 flask_login
 flask_sqlalchemy
 flask_wtf
+lxml
 psycopg2
 pylint
+pytest<4.0
+webtest

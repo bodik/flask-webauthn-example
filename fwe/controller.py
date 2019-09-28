@@ -5,10 +5,10 @@ from http import HTTPStatus
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import login_required, login_user, logout_user
 
-from . import db, login_manager
-from .forms import ButtonForm, LoginForm, UserForm
-from .models import User
-from .password_supervisor import PasswordSupervisor as PWS
+from fwe import db, login_manager
+from fwe.forms import ButtonForm, LoginForm, UserForm
+from fwe.models import User
+from fwe.password_supervisor import PasswordSupervisor as PWS
 
 blueprint = Blueprint('app', __name__)  # pylint: disable=invalid-name
 

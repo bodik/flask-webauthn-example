@@ -3,8 +3,8 @@
 from flask_login import UserMixin
 from sqlalchemy.ext.hybrid import hybrid_property
 
-from . import db
-from .password_supervisor import PasswordSupervisor as PWS
+from fwe import db
+from fwe.password_supervisor import PasswordSupervisor as PWS
 
 
 class User(db.Model, UserMixin):

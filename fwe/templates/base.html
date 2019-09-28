@@ -48,11 +48,6 @@
 			submit_form(event.target.closest('a').getAttribute('data-url'))
 				.always(function() { event.data.dt.ajax.reload(); });
 		}
-
-		/**
-		 * js ui helper
-		 */
-		var current_user_is_authenticated = {{ current_user.is_authenticated|string|lower }};
 	</script>
 
 	{% block style %}{% endblock %}
@@ -75,10 +70,13 @@
 			{% if config['DEBUG'] %}
 				<li><a title="debug is on"><span class="text-warning glyphicon glyphicon-warning-sign"></span></a></li>
 			{% endif %}
-
-			<ul class="nav navbar-nav navbar-right">
+			{% if current_user.is_authenticated %}
 				<li><a href="{{ url_for('app.user_list_route') }}">Users</a></li>
 				<li><a href="{{ url_for('app.user_add_route') }}">Add user</a></li>
+			{% endif %}
+			</ul>
+
+			<ul class="nav navbar-nav navbar-right">
 			{% if current_user.is_authenticated %}
 				<li><a href="{{ url_for('app.logout_route') }}">Logout</a></li>
 			{% else %}

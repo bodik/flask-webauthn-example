@@ -1,4 +1,4 @@
-.PHONY: all venv install-deps
+.PHONY: all venv install-deps freeze db-create-default db-create-test db run lint flake8 pylint test coverage
 
 all: lint coverage
 
@@ -15,11 +15,10 @@ freeze:
 
 
 db-create-default:
-	sudo -u postgres bin/database_create.sh fwe ${USER}
+	sudo -u postgres extra/database_create.sh fwe ${USER}
 
 db-create-test:
-	sudo -u postgres bin/database_create.sh fwe_test ${USER}
-	mkdir -p /tmp/sner_test_var
+	sudo -u postgres extra/database_create.sh fwe_test ${USER}
 
 db:
 	./fwe.sh dbremove
@@ -35,14 +34,14 @@ flake8:
 pylint:
 	python -m pylint fwe tests
 
-#test:
-#	python -m pytest -v tests/server tests/agent
-#
-#coverage:
-#	coverage run --source sner -m pytest tests/server tests/agent -x -vv
-#	coverage report --show-missing --fail-under 100
-#
-#
+test:
+	python -m pytest -v tests
+
+coverage:
+	coverage run --source fwe -m pytest tests -x -vv
+	coverage report --show-missing --fail-under 100
+
+
 #install-extra: /usr/local/bin/geckodriver
 #	which firefox || sudo apt-get -y install firefox-esr
 #

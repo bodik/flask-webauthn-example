@@ -12,12 +12,12 @@ db = SQLAlchemy()  # pylint: disable=invalid-name
 login_manager = LoginManager()  # pylint: disable=invalid-name
 
 
-def create_app():
+def create_app(dbconnection='postgresql:///fwe'):
     """application factory"""
 
     app = Flask(__name__)
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or os.urandom(32)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///fwe'
+    app.config['SQLALCHEMY_DATABASE_URI'] = dbconnection
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     db.init_app(app)

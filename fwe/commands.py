@@ -3,8 +3,8 @@
 import click
 from flask.cli import with_appcontext
 
-from . import db
-from .models import User
+from fwe import db
+from fwe.models import User
 
 
 def db_remove():
