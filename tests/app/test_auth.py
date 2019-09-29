@@ -34,7 +34,7 @@ def test_login_route(client, test_user):
     assert response.lxml.xpath('//a[text()="Logout"]')
 
 
-def test_logout(cl_user):
+def test_logout_route(cl_user):
     """test logout"""
 
     response = cl_user.get(url_for('app.logout_route'))
