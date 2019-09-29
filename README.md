@@ -48,3 +48,13 @@ make run
   - attestation is packed; credential object is RO, ArrayBuffers must be casted to views (Uint8Array) before CBOR encoding
   - packed attestation is sent to the server for registration
   - server verifies the attestation and stores credential public key and association with the user
+
+### Authentication
+
+1. create assertion
+  - client retrieves publicKeyCredentialRequestOption (pkcro) from server; state/challenge has to be preserved on the server side
+  - client/navigator calls authenticator with options to generate assertion
+2. authenticate (using) assertion
+  - assertion is packed; credential is RO, ArrayBuffers must be casted to views (Uint8Array) before CBOR encoding
+  - packed assertion is sent to the server for authentication
+  - server validates the assertion (challenge, signature) against registered user credentials and performs logon process on success

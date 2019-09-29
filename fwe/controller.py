@@ -7,12 +7,12 @@ from random import SystemRandom
 
 from fido2 import cbor
 from fido2.client import ClientData
-from fido2.ctap2 import AttestationObject, AttestedCredentialData
-from flask import _request_ctx_stack, Blueprint, current_app, flash, g, redirect, render_template, Response, session, url_for
+from fido2.ctap2 import AttestationObject, AttestedCredentialData, AuthenticatorData
+from flask import _request_ctx_stack, Blueprint, current_app, flash, g, redirect, render_template, request, Response, session, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 
 from fwe import db, login_manager, webauthn
-from fwe.forms import ButtonForm, LoginForm, UserForm, WebauthnRegisterForm
+from fwe.forms import ButtonForm, LoginForm, UserForm, WebauthnLoginForm, WebauthnRegisterForm
 from fwe.models import User, WebauthnCredential
 from fwe.password_supervisor import PasswordSupervisor as PWS
 
@@ -44,10 +44,15 @@ def login_route():
         user = User.query.filter(User.username == form.username.data).one_or_none()
         if user:
             if form.password.data:
+                # password authentication
                 if PWS.compare(PWS.hash(form.password.data, PWS.get_salt(user.password)), user.password):
                     regenerate_session()
                     login_user(user)
                     return redirect(url_for('app.index_route'))
+            elif user.webauthn_credentials:
+                # webauthn authentication
+                session['webauthn_login_user_id'] = user.id
+                return redirect(url_for('app.webauthn_login_route', **request.args))
 
         flash('Invalid credentials.', 'error')
 
@@ -148,6 +153,50 @@ def webauthn_register_route():
             flash('Error during registration.', 'error')
 
     return render_template('webauthn_register.html', form=form)
+
+
+@blueprint.route('/webauthn/pkcro', methods=['POST'])
+def webauthn_pkcro_route():
+    """login webauthn pkcro route"""
+
+    user = User.query.filter(User.id == session.get('webauthn_login_user_id')).one_or_none()
+    form = ButtonForm()
+    if user and form.validate_on_submit():
+        pkcro, state = webauthn.authenticate_begin(webauthn_credentials(user))
+        session['webauthn_login_state'] = state
+        return Response(b64encode(cbor.encode(pkcro)).decode('utf-8'), mimetype='text/plain')
+
+    return '', HTTPStatus.BAD_REQUEST
+
+
+@blueprint.route('/webauthn/login', methods=['GET', 'POST'])
+def webauthn_login_route():
+    """webauthn login route"""
+
+    user = User.query.filter(User.id == session.get('webauthn_login_user_id')).one_or_none()
+    if not user:
+        return login_manager.unauthorized()
+
+    form = WebauthnLoginForm()
+    if form.validate_on_submit():
+        try:
+            assertion = cbor.decode(b64decode(form.assertion.data))
+            webauthn.authenticate_complete(
+                session.pop('webauthn_login_state'),
+                webauthn_credentials(user),
+                assertion['credentialRawId'],
+                ClientData(assertion['clientDataJSON']),
+                AuthenticatorData(assertion['authenticatorData']),
+                assertion['signature'])
+            regenerate_session()
+            login_user(user)
+            return redirect(url_for('app.index_route'))
+
+        except (KeyError, ValueError) as e:
+            current_app.logger.exception(e)
+            flash('Login error during Webauthn authentication.', 'error')
+
+    return render_template('webauthn_login.html', form=form)
 
 
 # application
