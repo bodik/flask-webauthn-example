@@ -1,0 +1,78 @@
+{#- This file is part of sner4 project governed by MIT license, see the LICENSE.txt file. -#}
+{% extends "base.html" %}
+{% import "bootstrap_wtf.html" as b_wtf %}
+
+{% block script %}
+<script src="{{ url_for('static', filename='cbor.js') }}"></script>
+<script>
+	/**
+	 * request publicKeyCredentialRequestOptions for webauthn from server
+	 *
+	 * @return {Promise<Object>} A promise that resolves with publicKeyCredentialRequestOptions for navigator.credentials.get()
+	 */
+	function get_pkcro() {
+		return new Promise((resolve, reject) => {
+			submit_form("{{ url_for('app.webauthn_pkcro_route') }}")
+				.done(function(data, textStatus, jqXHR) {
+					var pkcro = CBOR.decode(base64_to_array_buffer(data));
+					window.pkcro_raw = data; // CI helper for selenium tests
+					console.debug('credentials.get options:', pkcro);
+					resolve(pkcro);
+				})
+				.fail(function(xhr, status, exception) { reject(new Error('Cannot get pkcro')); });
+		});
+	}
+
+	/**
+	 * pack and submit credential/assertion object for authentication
+	 *
+	 * @param  {object}             assertion credential assertion object returned by navigator.credential.get()
+	 * @return {Promise<undefined>}            A promise that resolves with undefined
+	 */
+	function authenticate_assertion(assertion) {
+		console.debug('authentication assertion', assertion);
+
+		var assertion_data = {
+			'credentialRawId': new Uint8Array(assertion.rawId),
+			'authenticatorData': new Uint8Array(assertion.response.authenticatorData),
+			'clientDataJSON': new Uint8Array(assertion.response.clientDataJSON),
+			'signature': new Uint8Array(assertion.response.signature),
+			'userHandle': new Uint8Array(assertion.response.userHandle)
+		};
+
+		var form = $('#webauthn_login_form')[0];
+		form.assertion.value = array_buffer_to_base64(CBOR.encode(assertion_data));
+		form.submit();
+	}
+
+	$(document).ready(function() {
+		console.log(window.PublicKeyCredential ? 'WebAuthn supported' : 'WebAuthn NOT supported');
+
+		get_pkcro()
+		.then(pkcro => navigator.credentials.get(pkcro))
+		.then(assertion_response => authenticate_assertion(assertion_response))
+		.catch(function(error) {
+			toastr.error('Webauthn authentication failed.')
+			console.log(error.message);
+		});
+	});
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="auths">
+	<h1>Login with Webautn credential</h1>
+	<div>
+		To login with registered Webauthn authenticator
+		<ol>
+			<li>Insert/connect the authenticator and verify user presence.</li>
+			<li>If authenticator gets rejected, refresh the page and try again.</li>
+			<li>If none of you authenticator works, login normaly with password.</li>
+		</ol>
+	</div>
+	<form id="webauthn_login_form" class="form-horizontal" method="post">
+		{{ form.csrf_token }}
+		{{ b_wtf.bootstrap_field(form.assertion, horizontal=True) }}
+	</form>
+</div>
+{% endblock %}

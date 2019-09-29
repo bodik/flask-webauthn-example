@@ -31,3 +31,9 @@ class WebauthnRegisterForm(FlaskForm):
     attestation = HiddenField('Attestation', [InputRequired()])
     name = StringField('Name', [Length(max=250)])
     submit = SubmitField('Register', render_kw={'disabled': True})
+
+
+class WebauthnLoginForm(FlaskForm):
+    """webauthn login form"""
+
+    assertion = HiddenField('Assertion', [InputRequired()])
