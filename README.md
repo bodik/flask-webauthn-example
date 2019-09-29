@@ -33,3 +33,18 @@ make db-create-default
 make db
 make run
 ```
+
+
+## Webauthn.guide
+
+### Registration
+
+1. create credential
+  - client retrieves publickKeyCredentialCreationOptions (pkcco) from server; state/challenge must be preserved on the server side
+  - client/navigator calls authenticator with options to create credential
+  - authenticator will create new credential and return an atestation response (new credential's public key + metadata)
+
+2. register credential
+  - attestation is packed; credential object is RO, ArrayBuffers must be casted to views (Uint8Array) before CBOR encoding
+  - packed attestation is sent to the server for registration
+  - server verifies the attestation and stores credential public key and association with the user

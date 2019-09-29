@@ -1,0 +1,82 @@
+{#- This file is part of sner4 project governed by MIT license, see the LICENSE.txt file. -#}
+{% extends "base.html" %}
+{% import "bootstrap_wtf.html" as b_wtf %}
+
+{% block script %}
+<script src="{{ url_for('static', filename='cbor.js') }}"></script>
+<script>
+	/**
+	 * request publicKeyCredentialCreationOptions for webauthn from server
+	 *
+	 * @return {Promise<Object>} A promise that resolves with publicKeyCredentialCreationOptions for navigator.credentials.create()
+	 */
+	function get_pkcco() {
+		return new Promise((resolve, reject) => {
+			submit_form("{{ url_for('app.webauthn_pkcco_route')}}")
+				.done(function(data, textStatus, jqXHR) {
+					var pkcco = CBOR.decode(base64_to_array_buffer(data));
+					window.pkcco_raw = data; // CI helper for selenium tests
+					console.debug('credentials.create options:', pkcco);
+					resolve(pkcco);
+				})
+				.fail(function(xhr, status, exception) { reject(new Error('Cannot get pkcco')); });
+		});
+	}
+
+	/**
+	 * pack attestation
+	 *
+	 * @param {object} attestation attestation response for the credential to register
+	 */
+	function pack_attestation(attestation) {
+		console.debug('new credential attestation:', attestation);
+
+		var attestation_data = {
+			'clientDataJSON': new Uint8Array(attestation.response.clientDataJSON),
+			'attestationObject': new Uint8Array(attestation.response.attestationObject)
+		};
+		var form = $('#webauthn_register_form')[0];
+		form.attestation.value = array_buffer_to_base64(CBOR.encode(attestation_data));
+		form.submit.disabled = false;
+		$('#webauthn_register_form p[name="attestation_data_status"')[0].innerHTML = '<span style="color: green;">Prepared</span>';
+	}
+
+	$(document).ready(function() {
+		console.log(window.PublicKeyCredential ? 'WebAuthn supported' : 'WebAuthn NOT supported');
+
+		get_pkcco()
+		.then(pkcco => navigator.credentials.create(pkcco))
+		.then(attestation_response => pack_attestation(attestation_response))
+		.catch(function(error) {
+			toastr.error('Registration data preparation failed.');
+			console.log(error.message);
+		});
+	});
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="profile">
+	<h1>Register new Webauthn credential</h1>
+
+	<div>
+		To register new credential:
+		<ol>
+			<li>Insert/connect authenticator and verify user presence.</li>
+			<li>Optionaly set comment for the new credential.</li>
+			<li>Submit the registration.</li>
+		</ol>
+	</div>
+
+	<form id="webauthn_register_form" class="form-horizontal" method="post">
+		{{ form.csrf_token }}
+		<div class="form-group">
+			<label class="col-sm-2 control-label">Registration data</label>
+			<div class="col-sm-10"><p class="form-control-static" name="attestation_data_status"><span style="color: orange;">To be prepared</span></p></div>
+		</div>
+		{{ b_wtf.bootstrap_field(form.attestation, horizontal=True) }}
+		{{ b_wtf.bootstrap_field(form.name, horizontal=True) }}
+		{{ b_wtf.bootstrap_field(form.submit, horizontal=True) }}
+	</form>
+</div>
+{% endblock %}

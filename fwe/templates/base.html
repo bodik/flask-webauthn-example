@@ -24,6 +24,41 @@
 		.text-warning { color: orange; }
 	</style>
 
+	<script type="text/javascript">
+		/**
+		 * encode ArrayBuffer to base64
+		 *
+		 * @param  {ArrayBuffer} buffer buffer to encode
+		 * @return {string}             encoded buffer
+		 */
+		function array_buffer_to_base64(buffer) {
+			return btoa(new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), ''));
+		}
+
+		/**
+		 * decode base64 data to ArrayBuffer
+		 *
+		 * @param  {string}      data data to decode
+		 * @return {ArrayBuffer}      decoded data
+		 */
+		function base64_to_array_buffer(data) {
+			return Uint8Array.from(atob(data), c => c.charCodeAt(0)).buffer;
+		}
+
+		/**
+		 * submit form with csrf token automagically appended to the form data
+		 *
+		 * @param  {string}  url to submit
+		 * @param  {object}  data to submit
+		 * @return {Promise} jquery ajax request promise
+		 */
+		function submit_form(url, data={}) {
+			data['csrf_token'] = $('meta[name="csrf-token"]').attr('content');
+			return $.ajax({"url": url,"type": "POST", "data": data})
+				.fail(function(xhr, status, exception) { toastr.error(xhr.hasOwnProperty('responseJSON') ? xhr.responseJSON["title"] : 'Request failed'); });
+		}
+	</script>
+
 	{% block style %}{% endblock %}
 	{% block script %}{% endblock %}
 </head>
@@ -47,6 +82,8 @@
 			{% if current_user.is_authenticated %}
 				<li><a href="{{ url_for('app.user_list_route') }}">Users</a></li>
 				<li><a href="{{ url_for('app.user_add_route') }}">Add user</a></li>
+				<li><a href="{{ url_for('app.webauthn_list_route') }}">Webauthn credentials</a></li>
+				<li><a href="{{ url_for('app.webauthn_register_route') }}">Register new credential</a></li>
 			{% endif %}
 			</ul>
 

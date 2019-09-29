@@ -1,4 +1,5 @@
 coverage
+fido2
 flake8
 flask
 flask_login

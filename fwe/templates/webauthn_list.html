@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="users">
+	<h1>WebauthnCredentials list</h1>
+
+	<table class="table">
+		<thead>
+			<tr>
+				<th>user.username</th>
+				<th>user_handle</th>
+				<th>credential_data</th>
+				<th>name</th>
+				<th>_actions</th>
+			</tr>
+		</thead>
+		<tbody>
+		{% for cred in creds %}
+			<tr>
+				<td>{{ cred.user.username }}</td>
+				<td>{{ cred.user_handle }}</td>
+				<td>{{ cred.credential_data[0:40] }}...</td>
+				<td>{{ cred.name }}</td>
+				<td>{% with form=button_form, form_url=url_for('app.webauthn_delete_route', webauthn_id=cred.id) %}{% include 'button_delete.html' %}{% endwith %}</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+</div>
+{% endblock %}
