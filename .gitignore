@@ -3,3 +3,5 @@
 venv/
 build/
 __pycache__
+server.key
+server.crt

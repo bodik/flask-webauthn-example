@@ -26,6 +26,8 @@ db:
 
 run:
 	FLASK_DEBUG=1 ./fwe.sh run --host 0.0.0.0 --port 19003
+runssl:
+	FLASK_DEBUG=1 ./fwe.sh run --host 0.0.0.0 --port 19003 --cert server.crt --key server.key
 
 
 lint: flake8 pylint
