@@ -7,7 +7,7 @@ from flask import current_app
 from flask.cli import with_appcontext
 
 from fwe import db
-from fwe.models import User
+from fwe.models import User, WebauthnCredential  # noqa: F401  pylint: disable=unused-import
 
 
 def db_remove():

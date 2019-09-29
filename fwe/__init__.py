@@ -8,10 +8,12 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import generate_csrf
 
 from fwe.sessions import FilesystemSessionInterface
+from fwe.wrapped_fido2_server import WrappedFido2Server
 
 
 db = SQLAlchemy()  # pylint: disable=invalid-name
 login_manager = LoginManager()  # pylint: disable=invalid-name
+webauthn = WrappedFido2Server()  # pylint: disable=invalid-name
 
 
 def create_app(db_connection='postgresql:///fwe', session_storage='/tmp/fwe_sessions'):
@@ -30,6 +32,7 @@ def create_app(db_connection='postgresql:///fwe', session_storage='/tmp/fwe_sess
     login_manager.login_view = 'app.login_route'
     login_manager.login_message = 'Not logged in'
     login_manager.login_message_category = 'warning'
+    webauthn.init_app(app)
 
     from fwe import controller  # pylint: disable=cyclic-import
     app.register_blueprint(controller.blueprint, url_prefix='/')
