@@ -38,7 +38,7 @@ test:
 	python -m pytest -v tests/app
 
 coverage:
-	coverage run --source fwe -m pytest tests -x -vv
+	coverage run --source fwe -m pytest tests/app -x -vv
 	coverage report --show-missing --fail-under 100
 
 
