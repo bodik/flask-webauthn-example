@@ -66,7 +66,7 @@ def index_route():
     return render_template('index.html')
 
 
-@blueprint.route('/user/list', methods=['GET', 'POST'])
+@blueprint.route('/user/list', methods=['GET'])
 @login_required
 def user_list_route():
     """users listing"""
