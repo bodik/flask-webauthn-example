@@ -7,7 +7,7 @@ Simple Flask Webauthn example application
 
 ```
 # prerequisities
-apt-get install git sudo make postgresql-all
+apt-get install git sudo make postgresql-all wget gcc python3-dev
 
 # clone from repository
 git clone https://github.com/bodik/flask-webauthn-example /opt/fwe
@@ -25,6 +25,8 @@ make install-deps
 make db-create-test
 make test
 make coverage
+make install-extra
+make test-extra
 
 # run dev server
 make db-create-default
